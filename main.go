@@ -4,9 +4,11 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/coder/websocket"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -55,8 +57,17 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using default values")
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	http.HandleFunc("/ws", wsHandler)
 
-	log.Println("2-client test server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("2-client test server running on :%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
